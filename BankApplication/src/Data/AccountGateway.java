@@ -1,6 +1,9 @@
 package Data;
 
 import java.util.Date;
+
+import com.sun.rowset.CachedRowSetImpl;
+
 import java.sql.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -53,14 +56,18 @@ public class AccountGateway {
 		
 		try{
 			pst = connection.prepareStatement("UPDATE BankAccount SET idClient = " + idClient + 
-													", typeAccount = '" + type + "', balance = " + balance + "dateCreation = '" + dateFormat.format(dateCreation) +
-													"' WHERE idAccount = " + idAccount);
+													", typeAccount = '" + type + "', balance = " + balance + ", dateCreation = ?" + 
+													" WHERE idAccount = " + idAccount);
 			
+//			System.out.println("UPDATE BankAccount SET idClient = " + idClient + 
+//													", typeAccount = '" + type + "', balance = " + balance + ", dateCreation = " + dateFormat.format(dateCreation) + 
+//													" WHERE idAccount = " + idAccount);
+			pst.setDate(1, new java.sql.Date(dateCreation.getTime()));
 			pst.executeUpdate();
 			return true;
 		}
 		catch(SQLException e){
-			System.out.println(e.getMessage());
+			e.printStackTrace();
 			
 			return false;
 		}
@@ -130,5 +137,63 @@ public class AccountGateway {
 		}
 		
 		return connection;
+	}
+	
+	public CachedRowSetImpl getAccounts(){
+		PreparedStatement pst;
+		ResultSet rs;
+		
+		try{
+			pst = connection.prepareStatement("SELECT * FROM BankAccount;");
+			rs = pst.executeQuery();
+			
+			CachedRowSetImpl crs = new CachedRowSetImpl();
+			crs.populate(rs);
+			crs.setMatchColumn(new String[]{"Id account", "Name owner", "Type", "Balance", "Date creation"});
+			return crs;
+		}catch(SQLException e){
+			System.out.println(e.getMessage());
+		}
+		
+		return null;
+	}
+	
+	public int getMaxAccountId(){
+		PreparedStatement pst;
+		ResultSet rs;
+		
+		int id = -1;
+		try{
+			pst = connection.prepareStatement("SELECT MAX(idAccount) AS maxid FROM BankAccount;");
+			rs = pst.executeQuery();
+			
+			if(rs.next()){
+				id = rs.getInt("maxid");
+			}
+			
+		}catch(Exception e){
+			System.out.println(e.getMessage());
+		}
+		return id;
+	}
+	
+	public CachedRowSetImpl getAccountForId(int id){
+		PreparedStatement pst;
+		ResultSet rs;
+		
+		try{
+			pst = connection.prepareStatement("SELECT * FROM BankAccount WHERE idAccount = " + id);
+			rs = pst.executeQuery();
+			
+			CachedRowSetImpl crs = new CachedRowSetImpl();
+			crs.populate(rs);
+			
+			return crs;
+			
+		}catch(Exception e){
+			System.out.println(e.getMessage());
+		}
+		
+		return null;
 	}
 }

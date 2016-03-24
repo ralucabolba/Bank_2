@@ -1,9 +1,10 @@
 package Business;
 import java.sql.*;
+
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.*;
+import java.util.regex.*;
 
 import com.sun.rowset.CachedRowSetImpl;
 
@@ -44,28 +45,34 @@ public class ClientManager {
 		return cg.getClients();
 	}
 	
+	public List<String> getClientsIds(){
+		CachedRowSetImpl crs = cg.getClients();
+		
+		List<String> cs = new ArrayList<>();
+		
+		try{
+			while(crs.next()){
+				cs.add(String.valueOf(crs.getInt("idClient")));
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+		return cs;
+	}
+	
+	public static String getClientNameById(int idC){
+		return cg.getClientNameById(idC);
+	}
 	public int addClient(String name, String cnp, String address){
 		int check = checkInfo(name, cnp, address);
+		
+		if(cg.existsClientCnp(cnp)){
+			return -4;
+		}
 		if(check == 0){
-			int id = -1;
-			
-			PreparedStatement pst;
-			ResultSet rs;
-			
-			try{
-				pst = connection.prepareStatement("SELECT MAX(idClient) AS maxid FROM BankClient;");
-				rs = pst.executeQuery();
-				
-				if(rs.next()){
-					id = rs.getInt("maxid");
-					Client c = new Client(id + 1, name, cnp, address, cg);
-					
-				}
-				
-				return 0;
-			}catch(Exception e){
-				System.out.println(e.getMessage());
-			}
+			int id = cg.getMaxClientId();
+			Client c = new Client(id + 1, name, cnp, address, cg);
 		}
 		
 		return check;
@@ -104,6 +111,9 @@ public class ClientManager {
 	
 	public int updateClient(int idClient, String name, String cnp, String address){
 		int check = checkInfo(name, cnp, address);
+		if(cg.existsClientCnp(cnp)){
+			return -4;
+		}
 		if(check == 0){
 			cg.updateClient(idClient, name, cnp, address);
 		}

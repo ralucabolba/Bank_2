@@ -3,6 +3,7 @@ package Data;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import com.sun.rowset.CachedRowSetImpl;
 
@@ -55,7 +56,7 @@ public class User {
 	 * @param password
 	 * @param type
 	 */
-	public void createUser(int idUser, String username, String password, String type){
+	public static void createUser(int idUser, String username, String password, String type){
 		
 		PreparedStatement pst;
 		
@@ -75,7 +76,7 @@ public class User {
 	 * @param password
 	 * @param type
 	 */
-	public void updateUser(int idUser, String username, String password, String type){
+	public static void updateUser(int idUser, String username, String type){
 		String t = type.toString();
 		
 		PreparedStatement pst;
@@ -83,7 +84,7 @@ public class User {
 		try{
 			pst = connection.prepareStatement("UPDATE BankUser SET "
 					+ "								username = '" + username + "', "
-					+ "								passwrd = '" + password + "', "
+					//+ "								passwrd = '" + password + "', "
 					+ "								typeUser = '" + t + "' WHERE idUser = " + idUser); 
 			pst.executeUpdate();
 		}
@@ -96,7 +97,7 @@ public class User {
 	 * Method that deletes an user from database
 	 * @param idUser
 	 */
-	public void deleteUser(int idUser){
+	public static boolean deleteUser(int idUser){
 		PreparedStatement pst;
 		
 		try{
@@ -105,7 +106,10 @@ public class User {
 		}
 		catch(SQLException e){
 			System.out.println(e.getMessage());
+			return false;
 		}
+		
+		return true;
 	}
 	
 	
@@ -116,39 +120,22 @@ public class User {
 	public static CachedRowSetImpl getEmployees(){
 		PreparedStatement pst;
 		ResultSet rs = null;
-		CachedRowSetImpl crs = null;
-		try {
-			crs = new CachedRowSetImpl();
-		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
 		
-		//ArrayList<Employee> ems = new ArrayList<Employee>();
 		
 		try{
 			pst = connection.prepareStatement("SELECT * FROM BankUser WHERE typeUser = 'employee';");
 			rs = pst.executeQuery();
 			
-//			while(rs.next()){
-//				int idEm = rs.getInt("idUser");
-//				String username = rs.getString("username");
-//				String passwrd = rs.getString("passwrd");
-//				
-//				ems.add(new Employee(idEm, username, passwrd));
-//			}
+			CachedRowSetImpl crs = new CachedRowSetImpl();
+			crs.populate(rs);
+			
+			return crs;
 		}
 		catch(SQLException e){
-			System.out.println(e.getMessage());
-		}
-		//return ems;
-		try {
-			crs.populate(rs);
-		} catch (SQLException e) {
-			
 			e.printStackTrace();
 		}
-		return crs;
+		
+		return null;
 	}
 	
 	
@@ -227,6 +214,43 @@ public class User {
 		
 		return type;
 		
+	}
+	
+	public static int getMaxUserId(){
+		PreparedStatement pst;
+		ResultSet rs;
+		
+		int id = -1;
+		try{
+			pst = connection.prepareStatement("SELECT MAX(idUser) AS maxid FROM BankUser;");
+			rs = pst.executeQuery();
+			
+			if(rs.next()){
+				id = rs.getInt("maxid");
+			}
+			
+		}catch(Exception e){
+			System.out.println(e.getMessage());
+		}
+		return id;
+	}
+	
+	public static boolean existsUsername(String username){
+		PreparedStatement pst;
+		ResultSet rs;
+		
+		try{
+			pst = connection.prepareStatement("SELECT idUser FROM BankUser WHERE username = '" + username + "'");
+			rs = pst.executeQuery();
+			
+			if(rs.next()){
+				return true;
+			}
+			
+		}catch(Exception e){
+			System.out.println(e.getMessage());
+		}
+		return false;
 	}
 	
 }

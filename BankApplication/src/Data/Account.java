@@ -10,12 +10,13 @@ public class Account {
 	private Date dateCreation;
 	private AccountGateway gateway;
 	
-	public Account(int idAccount, String type, float balance, Date dateCreation, AccountGateway gateway){
+	public Account(int idAccount, int idClient, String type, float balance, Date dateCreation, AccountGateway gateway){
 		this.idAccount = idAccount;
 		this.type = type;
 		this.balance = balance;
 		this.dateCreation = dateCreation;
 		this.gateway = gateway;
+		this.idClient = idClient;
 		
 		this.gateway.createAccount(idAccount, idClient, type, balance, dateCreation);
 	}

@@ -98,4 +98,62 @@ public class ClientGateway {
 		
 		return null;
 	}
+	
+	public String getClientNameById(int id){
+		PreparedStatement pst;
+		ResultSet rs;
+		
+		try{
+			pst = connection.prepareStatement("SELECT nameClient FROM BankClient WHERE idClient = " + id);
+			rs = pst.executeQuery();
+			
+			String name;
+			
+			if(rs.next()){
+				name = rs.getString("nameClient");
+				return name;
+			}
+		}catch(SQLException e){
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+	
+	public int getMaxClientId(){
+		PreparedStatement pst;
+		ResultSet rs;
+		
+		int id = -1;
+		try{
+			pst = connection.prepareStatement("SELECT MAX(idClient) AS maxid FROM BankClient;");
+			rs = pst.executeQuery();
+			
+			if(rs.next()){
+				id = rs.getInt("maxid");
+			}
+			
+		}catch(Exception e){
+			System.out.println(e.getMessage());
+		}
+		return id;
+	}
+	
+	public boolean existsClientCnp(String cnp){
+		PreparedStatement pst;
+		ResultSet rs;
+		
+		try{
+			pst = connection.prepareStatement("SELECT idClient FROM BankClient WHERE cnp = '" + cnp + "'");
+			rs = pst.executeQuery();
+			
+			if(rs.next()){
+				return true;
+			}
+			
+		}catch(Exception e){
+			System.out.println(e.getMessage());
+		}
+		return false;
+	}
 }

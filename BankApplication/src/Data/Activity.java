@@ -9,6 +9,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import com.sun.rowset.CachedRowSetImpl;
+
 public class Activity {
 	private int idActivity;
 	private String type;
@@ -64,30 +66,25 @@ public class Activity {
 		}
 	}
 	
-	public ArrayList<Activity> findForEmployee(int idEmployee){
+	public static CachedRowSetImpl findForEmployee(int idEmployee){
 		PreparedStatement pst;
 		ResultSet rs;
 		
-		ArrayList<Activity> acts= null;
 		
 		try{
 			pst  = connection.prepareStatement("SELECT * FROM Activity WHERE idUser = " + idEmployee);
 			rs = pst.executeQuery();
 			
-			while(rs.next()){
-				int idAct = rs.getInt("idAct");
-				String type = rs.getString("typeAct");
-				String description = rs.getString("description");
-				Date date = rs.getDate("dateAct");
-				
-				acts.add(new Activity(idAct, type, description, idEmployee, date));
-			}
+			CachedRowSetImpl crs = new CachedRowSetImpl();
+			crs.populate(rs);
+			
+			return crs;
 		}
 		catch(SQLException e){
 			System.out.println(e.getMessage());
 		}
 		
-		return acts;
+		return null;
 	}
 	
 	
