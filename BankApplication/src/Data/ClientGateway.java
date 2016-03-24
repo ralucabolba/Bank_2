@@ -2,9 +2,11 @@ package Data;
 
 import java.sql.*;
 
+import com.sun.rowset.CachedRowSetImpl;
+
 public class ClientGateway {
 
-	private Connection connection = this.connect("jdbc:mysql//localhost:3306/bank", "root", "admin");
+	private Connection connection = connect("jdbc:mysql://localhost:3306/bank?autoReconnect=true&useSSL=false", "root", "admin");
 	
 	/**
 	 * Method that connects to database
@@ -63,7 +65,7 @@ public class ClientGateway {
 		PreparedStatement pst;
 		
 		try{
-			pst = connection.prepareStatement("UPDATE BankClient SET name = '" + name + 
+			pst = connection.prepareStatement("UPDATE BankClient SET nameClient = '" + name + 
 					"', cnp = '" + cnp + "', address = '" + address +
 					"' WHERE idClient = " + idClient);
 
@@ -76,5 +78,24 @@ public class ClientGateway {
 			
 			//return false;
 		}
+	}
+	
+	public CachedRowSetImpl getClients(){
+		PreparedStatement pst;
+		ResultSet rs;
+		
+		try{
+			pst = connection.prepareStatement("SELECT * FROM BankClient;");
+			rs = pst.executeQuery();
+			
+			CachedRowSetImpl crs = new CachedRowSetImpl();
+			crs.populate(rs);
+			crs.setMatchColumn(new String[]{"Id Client", "Name", "Cnp", "Address"});
+			return crs;
+		}catch(SQLException e){
+			System.out.println(e.getMessage());
+		}
+		
+		return null;
 	}
 }

@@ -6,7 +6,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 public class AccountGateway {
-	private Connection connection = this.connect("jdbc:mysql//localhost:3306/bank", "root", "admin");
+	private Connection connection = connect("jdbc:mysql://localhost:3306/bank?autoReconnect=true&useSSL=false", "root", "admin");
 	
 	
 	/**

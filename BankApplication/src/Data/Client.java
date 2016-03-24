@@ -1,5 +1,7 @@
 package Data;
 
+import com.sun.rowset.CachedRowSetImpl;
+
 public class Client {
 	private int idClient;
 	private String name;
@@ -47,4 +49,8 @@ public class Client {
 		this.address = newAddress;
 		this.gateway.updateClient(this.idClient, this.name, this.cnp, newAddress);
 	}
+	
+//	public CachedRowSetImpl getClients(){
+//		return this.gateway.getClients();
+//	}
 }
