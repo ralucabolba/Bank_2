@@ -83,8 +83,8 @@ public class Client {
 	
 	public static int checkInfo(String name, String cnp, String address){
 		String cnpPattern = "[1-2]([0-9]{12})";
-		String namePattern = "([A-Z][a-z]+) ([A-Z][a-z]+)";
-		String addressPattern = "[A-Za-z0-9 ]+";
+		String namePattern = "([A-Z][a-z]+)*";
+		String addressPattern = "[A-Za-z0-9 .,-]+";
 		
 		Pattern pCnp = Pattern.compile(cnpPattern);
 		Pattern pName = Pattern.compile(namePattern);

@@ -56,7 +56,6 @@ public class Window extends Application{
 	private Button buttonTransfer;
 	private Button buttonReport;
 	
-	
 	private Scene currentScene;
 	
 	private TabPane tabPaneEmployee;
@@ -94,19 +93,25 @@ public class Window extends Application{
 	private Button buttonAddEm;
 	
 	private DatePicker from, to;
+	private ComboBox<String> clientBill;
+	private ComboBox<String> providerCombo;
+	private TextField billField;
+	private TextField sumBillField;
+	private Button buttonPay;
 	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		loginWindow();
+		currentScene = loginWindow();
 		
 		primaryStage.setTitle("Bank Application");
 		primaryStage.setScene(currentScene);
 		primaryStage.show();
+		primaryStage.centerOnScreen();
 	}
 	
 	
 	
-	public void loginWindow(){
+	public Scene loginWindow(){
 
 		VBox vboxLog = new VBox(20);
 		HBox hboxUsername = new HBox(10);
@@ -132,8 +137,7 @@ public class Window extends Application{
 		
 		Scene scene = new Scene(vboxLog, 250, 350, Color.POWDERBLUE);
 		
-		//return scene;
-		currentScene = scene;
+		return scene;
 		
 	}
 	@SuppressWarnings("unchecked")
@@ -295,7 +299,13 @@ public class Window extends Application{
 		
 		addEmBox.getChildren().addAll(addUsernameEm, addPasswordEm,  buttonAddEm);
 		
-		vboxEm.getChildren().addAll(label, emTable, addEmBox);
+		Button buttonLogout1 = new Button("Log out");
+		addListenerButtonLogout(new LogoutListener(), buttonLogout1);
+		
+		StackPane stackEm = new StackPane();
+		stackEm.getChildren().add(emTable);
+		
+		vboxEm.getChildren().addAll(label, stackEm, addEmBox, buttonLogout1);
 		
 		vboxEm.setAlignment(Pos.CENTER);
 		vboxEm.setPrefSize(300, 300);
@@ -386,7 +396,13 @@ public class Window extends Application{
 		actTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 		actTable.getColumns().addAll(idActCol, idUserCol, dateCol, typeActCol, descrCol);
 		
-		vboxAct.getChildren().addAll(selectDateBox, selectEmBox, buttonReport, actTable);
+		Button buttonLogout2 = new Button("Log out");
+		addListenerButtonLogout(new LogoutListener(), buttonLogout2);
+		
+		StackPane stackAct = new StackPane();
+		stackAct.getChildren().add(actTable);
+		
+		vboxAct.getChildren().addAll(selectDateBox, selectEmBox, buttonReport, stackAct, buttonLogout2);
 		vboxAct.setPrefSize(300, 300);
 		vboxAct.setPadding(new Insets(50));
 		
@@ -424,7 +440,7 @@ public class Window extends Application{
 		
 		VBox hboxClients = new VBox(20);
 		VBox hboxAccounts = new VBox(20);
-		HBox hboxBills = new HBox();
+		VBox hboxBills = new VBox(20);
 		VBox hboxTransfer = new VBox(20);
 		
 		/*Account table*/
@@ -736,7 +752,22 @@ public class Window extends Application{
 		addListenerAddAccount(new AddAccountListener());
 		
 		addAccountBox.getChildren().addAll(addTypeAccount, addOwner, buttonAddAccount);
+		/**********************Pay bills************************************************/
+		Label blabel = new Label("Pay bill");
 		
+		clientBill = new ComboBox(clientsIds);
+		clientBill.setPromptText("Select client");
+		
+		providerCombo = new ComboBox(FXCollections.observableArrayList("Telekom", "Orange", "Vodafone", "RCS&RDS", "UPC", "E-ON Energie"));
+		providerCombo.setPromptText("Select provider");
+		
+		billField = new TextField();
+		
+		sumBillField = new TextField();
+		
+		buttonPay = new Button("Pay");
+		
+		addListenerButtonPay(new ButtonPayListener());
 		
 		/**********************Transfer money panel**************************************/
 		
@@ -762,18 +793,54 @@ public class Window extends Application{
 		buttonTransfer = new Button("Transfer money");
 		addListenerButtonTransfer(new ButtonTransferListener());
 		
-		hboxClients.getChildren().addAll(labelC, clientTable, addClientBox);
+		Button buttonLogout1 = new Button("Log out");
+		addListenerButtonLogout(new LogoutListener(), buttonLogout1);
+		
+		Button buttonLogout2 = new Button("Log out");
+		addListenerButtonLogout(new LogoutListener(), buttonLogout2);
+		
+		Button buttonLogout3 = new Button("Log out");
+		addListenerButtonLogout(new LogoutListener(), buttonLogout3);
+		
+		Button buttonLogout4 = new Button("Log out");
+		addListenerButtonLogout(new LogoutListener(), buttonLogout4);
+		
+		StackPane stackClient = new StackPane();
+		stackClient.getChildren().add(clientTable);
+		
+		StackPane stackAccount = new StackPane();
+		stackAccount.getChildren().add(accountTable);
+		
+		hboxClients.getChildren().addAll(labelC, stackClient, addClientBox, buttonLogout1);
 		
 		hboxClients.setMinWidth(400);
 		hboxClients.setAlignment(Pos.CENTER);
 		
 		hboxAccounts.setMinWidth(400);
-		hboxAccounts.getChildren().addAll(labelA, accountTable, addAccountBox);
+		hboxAccounts.getChildren().addAll(labelA, stackAccount, addAccountBox, buttonLogout2);
 		hboxAccounts.setAlignment(Pos.CENTER);
 		
+		hboxBills.setMinWidth(400);
+		
+		VBox vleft = new VBox(20);
+		vleft.getChildren().addAll(new Label("Select client:"),
+								   new Label("Select bill provider:"),
+								   new Label("Introduce bill number:"),
+								   new Label("Introduce sum:"));
+		
+		VBox vright = new VBox(20);
+		vright.getChildren().addAll(clientBill, providerCombo, billField, sumBillField);
+		
+		vleft.setAlignment(Pos.CENTER_LEFT);
+		vright.setAlignment(Pos.CENTER_LEFT);
+		
+		HBox h1 = new HBox(20);
+		h1.getChildren().addAll(vleft, vright);
+
+		hboxBills.getChildren().addAll(blabel, h1, buttonPay, buttonLogout3);
 		hboxBills.setAlignment(Pos.CENTER);
 		
-		hboxTransfer.getChildren().addAll(sLabel, sourceAccount, targetAccount, sumTransfer, buttonTransfer);
+		hboxTransfer.getChildren().addAll(sLabel, sourceAccount, targetAccount, sumTransfer, buttonTransfer, buttonLogout4);
 		hboxTransfer.setAlignment(Pos.CENTER_LEFT);
 		hboxTransfer.setPrefSize(300, 300);
 		
@@ -817,23 +884,31 @@ public class Window extends Application{
 
 
 	public void populateEmployees(TableView emTable){
+		emTable.getItems().clear();
+		
 		List<List<String>> ems = ub.getEmployees();
 		ObservableList<List<String>> data = FXCollections.observableArrayList(ems);
 		emTable.setItems(data);
 	}
 	
 	public void populateActivities(TableView actTable, int idUser, java.util.Date from, java.util.Date to){
+		actTable.getItems().clear();
+		
 		List<List<String>> acts = actm.getActivitiesForUser(idUser, from, to);
 		ObservableList<List<String>> data = FXCollections.observableArrayList(acts);
 		actTable.setItems(data);
 	}
 
 	public void populateAccount(TableView accountTable){
+		accountTable.getItems().clear();
+		
 		List<List<String>> accs = am.getAccounts();
 		ObservableList<List<String>> data = FXCollections.observableArrayList(accs);
 		accountTable.setItems(data);
 	}
 	public void populateClient(TableView clientTable){
+		clientTable.getItems().clear();
+		
 		List<List<String>> cs = cm.getClients();
 		ObservableList<List<String>> data = FXCollections.observableArrayList(cs);
 		clientTable.setItems(data);
@@ -870,6 +945,10 @@ public class Window extends Application{
 		buttonLogin.setOnAction(act);
 	}
 	
+	public void addListenerButtonLogout(EventHandler<ActionEvent> act, Button button){
+		button.setOnAction(act);
+	}
+	
 	public void addListenerAddClient(EventHandler<ActionEvent> act){
 		buttonAddClient.setOnAction(act);
 	}
@@ -887,6 +966,69 @@ public class Window extends Application{
 	
 	public void addListenerGenerateReport(EventHandler<ActionEvent> act){
 		buttonReport.setOnAction(act);
+	}
+	
+	public void addListenerButtonPay(EventHandler<ActionEvent> act){
+		buttonPay.setOnAction(act);
+	}
+	
+	class ButtonPayListener implements EventHandler<ActionEvent>{
+
+		@Override
+		public void handle(ActionEvent event) {
+			if(clientBill.getValue() == null || providerCombo.getValue() == null || billField.getText().equals("") || sumBillField.getText().equals("")){
+				ErrorMessage("Error", "Error paying bills", "You must fill in all fields in order to pay a bill.");
+			}
+			else{
+				try{
+					int op = ub.payBill(Integer.valueOf(clientBill.getValue()), providerCombo.getValue().toString(), billField.getText().toString(), Float.valueOf(sumBillField.getText()));
+					if(op == -1){
+						ErrorMessage("Error", "Error paying bills", "Client with id = " + clientBill.getValue() + " has no accounts");
+					}
+					else if(op == -2){
+						ErrorMessage("Error", "Error paying bills", "Sum too large. Please try again.");
+					}
+					else if(op == -3){
+						ErrorMessage("Error", "Error paying bills", "There are no accounts.");
+					}
+					else if(op == -4){
+						ErrorMessage("Error", "Error paying bills", "Invalid sum. Sum must be positive.");
+					}
+					else{
+						SuccesMessage("Succes", "Bill paid", "Bill has been paid successfully.");
+						actm.addActivityForUser(ub.getId(), "Bill payment", "Bill no " + billField.getText() + " from \n " + 
+											providerCombo.getValue().toString() + "\nfor client " + 
+											cm.getClientNameById(Integer.valueOf(clientBill.getValue().toString())) +
+											" with sum " + sumBillField.getText() + " LEI has been paid");
+						populateAccount(accountTable);
+						getAccounts(accountsIds);
+					}
+				}
+				catch(NumberFormatException e){
+					e.printStackTrace();
+					ErrorMessage("Error", "Error paying bills", "Invalid sum. Please try again.");
+				}
+				
+			}
+		}
+		
+	}
+	class LogoutListener implements EventHandler<ActionEvent>{
+
+		@Override
+		public void handle(ActionEvent event) {
+			ub.logout();
+			
+			emTable.getColumns().clear();
+			actTable.getColumns().clear();
+			accountTable.getColumns().clear();
+			clientTable.getColumns().clear();
+			
+			Stage emStage = (Stage)((Node)event.getSource()).getScene().getWindow();
+			emStage.setScene(loginWindow());
+			emStage.centerOnScreen();
+		}
+		
 	}
 	class GenerateReportListener implements EventHandler<ActionEvent>{
 
@@ -906,18 +1048,19 @@ public class Window extends Application{
 	}
 	class ButtonLoginListener implements EventHandler<ActionEvent>{
 		public void handle(ActionEvent event){
-			//int idUser = ub.getUser(usernameField.getText(), passwordField.getText());
+			
 			if (!ub.authentificate(usernameField.getText(), passwordField.getText())){
 				ErrorMessage("Error", "Authentification failed", "Incorrect username or password. Please try again.");
 			}
 			else{
 				String type = ub.getType();
+				
 				if(type.equals("employee")){
 					Stage emStage = (Stage)((Node)event.getSource()).getScene().getWindow();
 					emStage.setScene(EmployeeWindow());
 					emStage.centerOnScreen();
 				}
-				else{
+				else if(type.equals("administrator")){
 					Stage adminStage = (Stage)((Node)event.getSource()).getScene().getWindow();
 					adminStage.setScene(AdminWindow());
 					adminStage.centerOnScreen();
@@ -981,7 +1124,7 @@ public class Window extends Application{
 
 		@Override
 		public void handle(ActionEvent arg0) {
-			if(sourceAccount == null || targetAccount == null || sumTransfer == null){
+			if(sourceAccount.getValue() == null || targetAccount.getValue() == null || sumTransfer == null){
 				ErrorMessage("Error", "Failed transfering money", "You must provide all information in order to transfer money.");
 			}
 			else{
@@ -1057,7 +1200,7 @@ public class Window extends Application{
 		
 		
 		if(changed){
-			int op = am.updateAccount(Integer.valueOf(ls.get(0)), Integer.valueOf(ls.get(1)), newTypeAc, Float.valueOf(newBalance), Date.valueOf(ls.get(5)));
+			int op = am.updateAccount(Integer.valueOf(ls.get(0)), Integer.valueOf(ls.get(1)), newTypeAc, Float.valueOf(newBalance));
 			
 			if(op == -1){
 				ErrorMessage("Error", "Failed updating the account", "Incorrect type. Please try again.");

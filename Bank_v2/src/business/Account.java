@@ -22,6 +22,33 @@ public class Account {
 		ag = new AccountGateway(DBname, DBusername, DBpassword);
 	}
 	
+	public static List<String> getAccountForId(int idAccount){
+		CachedRowSetImpl crs = ag.getAccountForId(idAccount);
+		
+		try{
+			while(crs.next()){
+				int idAc = crs.getInt("idAccount");
+				int idC = crs.getInt("idClient");
+				String type = crs.getString("typeAccount");
+				float balance = crs.getFloat("balance");
+				Date dateC = crs.getDate("dateCreation");
+				
+				
+				List<String> ls = new ArrayList<String>();
+				ls.add(String.valueOf(idAc));
+				ls.add(String.valueOf(idC));
+				ls.add(type);
+				ls.add(String.valueOf(balance));
+				ls.add(String.valueOf(dateC));
+				
+				return ls;
+			}
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		}
+		return null;
+	}
 	public static List<List<String>> getAccounts(){
 		CachedRowSetImpl crs = ag.getAccounts();
 		
@@ -59,7 +86,7 @@ public class Account {
 		ag.createAccount(idClient, type, (float)0.0, new Date());
 	}
 	
-	public static int updateAccount(int idAccount, int idClient, String type, float balance, Date dateCreation){
+	public static int updateAccount(int idAccount, int idClient, String type, float balance){
 		if(!(type.equals("Saving account")) && !(type.equals("Spending account"))){
 			return -1;
 			
@@ -67,7 +94,7 @@ public class Account {
 		if(balance < 0.0){
 			return -2;
 		}
-		ag.updateAccount(idAccount, idClient, type, balance, dateCreation);
+		ag.updateAccount(idAccount, idClient, type, balance);
 		return 0;
 	}
 	
@@ -108,8 +135,8 @@ public class Account {
 					return -1;
 				}
 				
-				ag.updateAccount(sourceId, source.getInt("idClient"), source.getString("typeAccount"), sSum - amount, source.getDate("dateCreation"));
-				ag.updateAccount(destId, dest.getInt("idClient"), dest.getString("typeAccount"), dSum + amount, dest.getDate("dateCreation"));
+				ag.updateAccount(sourceId, source.getInt("idClient"), source.getString("typeAccount"), sSum - amount);
+				ag.updateAccount(destId, dest.getInt("idClient"), dest.getString("typeAccount"), dSum + amount);
 				
 			}
 		}catch(NumberFormatException e){
@@ -119,5 +146,20 @@ public class Account {
 			return -3;
 		}
 		return 0;
+	}
+	
+	public static int getAccountIdForClient(int idClient){
+		List<List<String>> accs = getAccounts();
+		
+		if(accs.isEmpty()){
+			return -1; //there are no accounts
+		}
+		for(List<String> ac : accs){
+			if(ac.get(1).equals(String.valueOf(idClient))){
+				return Integer.valueOf(ac.get(0));
+			}
+		}
+		
+		return -2;
 	}
 }

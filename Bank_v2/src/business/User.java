@@ -20,6 +20,10 @@ public class User {
 	
 	public User(String DBname, String DBusername, String DBpassword){
 		ug = new UserGateway(DBname, DBusername, DBpassword);
+		this.idUser = -1;
+		this.username = "";
+		this.password = "";
+		this.type = "";
 	}
 	
 	public boolean authentificate(String username, String password){
@@ -31,10 +35,10 @@ public class User {
 				this.username = crs.getString("username");
 				this.password = crs.getString("passwrd");
 				this.type = crs.getString("typeUser");
+				
+				return true;
 			}
 			
-			//System.out.println(this.idUser);
-			return true;
 		}
 		catch(Exception e){
 			e.printStackTrace();
@@ -43,6 +47,12 @@ public class User {
 		return false;
 	}
 	
+	public void logout(){
+		this.idUser = -1;
+		this.username = "";
+		this.password = "";
+		this.type = "";
+	}
 	
 	public String getType(){
 		return this.type;
@@ -155,5 +165,33 @@ public class User {
 		}
 		
 		return null;
+	}
+	
+	public int payBill(int clientId, String provider, String billNo, Float sum){
+		if(sum < 0.0){
+			return -4;
+		}
+		
+		int idAccount = Account.getAccountIdForClient(clientId);
+		
+		
+		if(idAccount == -1){
+			return -3;
+		}
+		if(idAccount == -2){
+			return -1;
+		}
+		if(idAccount > 0){
+			List<String> acc = Account.getAccountForId(idAccount);
+			Float balance = Float.valueOf(acc.get(3));
+			
+			if(balance < sum){
+				return -2;
+			}
+			
+			Account.updateAccount(idAccount, clientId, acc.get(2), balance-sum);
+		}
+		
+		return 0;
 	}
 }

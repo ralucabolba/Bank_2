@@ -34,15 +34,14 @@ public class AccountGateway {
 	}
 	
 
-	public void updateAccount(int idAccount, int idClient, String type, float balance, Date dateCreation){
+	public void updateAccount(int idAccount, int idClient, String type, float balance){
 		PreparedStatement pst;
 		
 		try{
 			pst = connection.prepareStatement("UPDATE BankAccount SET idClient = " + idClient + 
-													", typeAccount = '" + type + "', balance = " + balance + ", dateCreation = ?" + 
+													", typeAccount = '" + type + "', balance = " + balance + 
 													" WHERE idAccount = " + idAccount);
 			
-			pst.setDate(1, new java.sql.Date(dateCreation.getTime()));
 			pst.executeUpdate();
 		}
 		catch(SQLException e){
@@ -63,27 +62,7 @@ public class AccountGateway {
 		}
 	}
 	
-	
-//	public String getAccountType(int idAccount){
-//		String type = null;
-//		
-//		PreparedStatement pst;
-//		ResultSet rs;
-//		
-//		try{
-//			pst = connection.prepareStatement("SELECT typeAccount FROM BankAccount WHERE idAccount = " + idAccount);
-//			rs = pst.executeQuery();
-//			
-//			if(rs.next()){
-//				type = rs.getString("idAccount");
-//			}
-//		}
-//		catch(Exception e){
-//			System.out.println(e.getMessage());
-//		}
-//		
-//		return type;
-//	}
+
 	
 	private Connection connect(String name, String username, String password){
 		Connection connection = null;
